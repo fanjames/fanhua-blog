@@ -126,7 +126,7 @@
 <meta property="og:image" content="http://www.cbdio.com/image/attachement/jpg/site2/20160303/94de80684e4418423d4056.jpg">
 <meta property="og:image" content="http://www.cbdio.com/image/attachement/jpg/site2/20160303/94de80684e4418423d4862.jpg">
 <meta property="og:image" content="http://www.cbdio.com/image/attachement/jpg/site2/20160303/94de80684e4418423d4f08.jpg">
-<meta property="og:updated_time" content="2018-06-03T08:40:14.649Z">
+<meta property="og:updated_time" content="2018-06-03T08:43:05.243Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="【转载】刘知远：面向大规模知识图谱的表示学习技术">
 <meta name="twitter:description" content="原地址：http://www.cbdio.com/BigData/2016-03/03/content_4675344.htm 本讲座选自清华大学计算机科学与技术系刘知远老师于2016年1月19日在RONG V2.0 系列交流会——语言语音语义与大数据技术专场论坛上所做的题为《面向大规模知识图谱的表示学习技术》的演讲。">
@@ -348,7 +348,7 @@
               
                 <span class="post-meta-item-text">更新于&#58;</span>
               
-              <time title="更新于" itemprop="dateModified" datetime="2018-06-03T16:40:14+08:00">
+              <time title="更新于" itemprop="dateModified" datetime="2018-06-03T16:43:05+08:00">
                 2018-06-03
               </time>
             
@@ -420,8 +420,10 @@
 <p><img src="http://www.cbdio.com/image/attachement/jpg/site2/20160303/94de80684e4418423b2e30.jpg" alt=""></p>
 <a id="more"></a>
 <p>刘知远：大家好，我叫刘知远，来自计算机系。非常感谢前面李涓子老师、蔡老师讲了一些认知和知识图谱相关的知识，这样我就可以接着他们讲我今天的题目。我的题目是：表示学习跟大家耳熟能详的深度学习有密切的联系。</p>
+<hr>
 <p><img src="http://www.cbdio.com/image/attachement/jpg/site2/20160303/94de80684e4418423b4b24.jpg" alt=""></p>
 <p>我们为什么要关注表示学习这个问题呢？我们可以看关于机器学习的一个重要公式，这个公式有三个部分组成，第一部分是关于数据或者问题的表示，在表示的基础上我们要去设计或者构建一个目标，也就是说我们要实现一个什么样的目标。在设定了目标之后，开始看怎么实现这个目标，这就是优化的过程。对于机器学习来讲，表示是这三个环节中最基础的部分，也是我们为什么会关注它的重要原因。对于自然语言处理和多媒体处理而言，所处理的数据是典型的无结构数据。为了让计算机更好地对这些数据进行智能处理，如何很好地表示它们是一个至关重要的问题。</p>
+<hr>
 <h1 id="什么是表示学习"><a href="#什么是表示学习" class="headerlink" title="什么是表示学习"></a>什么是表示学习</h1><p><img src="http://www.cbdio.com/image/attachement/jpg/site2/20160303/94de80684e4418423b5c16.jpg" alt=""></p>
 <p>什么是表示学习呢？在自然语言处理中，常用的表示方式是1-hot Representation，每一个词都可以表示成一个非常长的向量，这个向量的长度就是词汇的数量，例如汉语常用词有6000个，我们就把每个词表示成6000维的向量。每个词对应的向量中有一维设置为1，其他维度设置为0，这样很自然地就把人类语言中的所有词都独一无二地表示成一个向量，这样计算机就可以很好的区分某个词跟另外一个词是不一样的。这种方法非常简单，应用也非常广泛，例如搜索引擎中的百度、谷歌，当输入一个查询词，基本思路就是匹配哪些文档里面出现了这些查询词。其实背后本质就是把每一个词都表示成一个独一无二的符号。但是这种方法面临一个很大的问题，大家可以看到，其实很多的词互相之间有非常丰富的语义联系，比如说star和sun，一个是星星，一个是太阳，它们虽然是不同的词，但有密切的语义关联。但是计算机把它们表示成了两个独立的向量，忽略了它们之间的语义关系。这就是我们希望用表示学习解决的问题。</p>
 <p><img src="http://www.cbdio.com/image/attachement/jpg/site2/20160303/94de80684e4418423b6406.jpg" alt=""></p>
