@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="传习录">
 <meta property="og:description" content="知识表示（Knowledge Representation，KR，也译为知识表现）是如何将结构化数据组织，以便于机器处理和人的理解的方法。从结构推导出新的结构，这就是推理。传统上KR属于逻辑的分支，但在实践中我们会用很简单、可读、可维护的数据结构。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-06-03T12:07:26.710Z">
+<meta property="og:updated_time" content="2018-06-03T12:11:48.925Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="【转载】知识图谱的知识表示（鲍捷）">
 <meta name="twitter:description" content="知识表示（Knowledge Representation，KR，也译为知识表现）是如何将结构化数据组织，以便于机器处理和人的理解的方法。从结构推导出新的结构，这就是推理。传统上KR属于逻辑的分支，但在实践中我们会用很简单、可读、可维护的数据结构。">
@@ -308,7 +308,7 @@
               
                 <span class="post-meta-item-text">更新于&#58;</span>
               
-              <time title="更新于" itemprop="dateModified" datetime="2018-06-03T20:07:26+08:00">
+              <time title="更新于" itemprop="dateModified" datetime="2018-06-03T20:11:48+08:00">
                 2018-06-03
               </time>
             
@@ -422,7 +422,52 @@
 <p>PyYAML是Python里的Yaml处理库 <a href="http://pyyaml.org/wiki/PyYAML" target="_blank" rel="noopener">http://pyyaml.org/wiki/PyYAML</a></p>
 <p>不过Yaml解析的速度比json慢得多，大概只有1/10。但是我们要牢记，知识表示最重要的是对人的友好，不是对机器的友好。速度不是大的问题，大部分的知识库都不是特别大。</p>
 <p>最后多说一句无关的话，很多语言都有可读性更好的类Python语法。下面是我收集的一个列表</p>
-<p>| yaml         |  – readable json  |<br>| coffeescript |  – readable javascript |<br>| RapydScript  |  – readable javascript |<br>| groovy       |  – readable java  |<br>| markdown     |  – readable html  |<br>| RapydML      |  – readable html  |<br>| jade         |  – readable html template  |<br>| SASS,Stylus  |  – readable css  |<br>| Turtle       |  – readable RDF  | </p>
+<table>
+<thead>
+<tr>
+<th>语言</th>
+<th>语法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>yaml</td>
+<td>– readable json</td>
+</tr>
+<tr>
+<td>coffeescript</td>
+<td>– readable javascript</td>
+</tr>
+<tr>
+<td>RapydScript</td>
+<td>– readable javascript</td>
+</tr>
+<tr>
+<td>groovy</td>
+<td>– readable java</td>
+</tr>
+<tr>
+<td>markdown</td>
+<td>– readable html</td>
+</tr>
+<tr>
+<td>RapydML</td>
+<td>– readable html</td>
+</tr>
+<tr>
+<td>jade</td>
+<td>– readable html template</td>
+</tr>
+<tr>
+<td>SASS,Stylus</td>
+<td>– readable css</td>
+</tr>
+<tr>
+<td>Turtle</td>
+<td>– readable RDF</td>
+</tr>
+</tbody>
+</table>
 <p>有一本经典的编程书<a href="https://book.douban.com/subject/5442971/" target="_blank" rel="noopener">《The Art of Readable Code》</a>。 我觉得同样的在知识表示里，我们应该追求“易读知识的艺术”。工程上，这是特别重要的一件事。</p>
 <h1 id="RDF和OWL"><a href="#RDF和OWL" class="headerlink" title="RDF和OWL"></a>RDF和OWL</h1><p>虽然在大部分的应用场景下我都不会推荐大家使用RDF和OWL，但了解一下它们还是很有必要的，当是打免疫针。当然这两个语言非常的复杂，官方文档打印出来有1000页厚，展开讲的话一个学期也讲不完。好在我们是工程师，只关心如何应用，不需要全面了解。</p>
 <p>但基础的RDF是非常非常简单的，一页纸就能说清楚。RDF的基本单元是三元组（triple）。每个三元组是（主语 谓语 宾语）这样的元组 tuple。主谓宾的取值称为“资源”（Resource，也就是RDF里的R）。资源可以是一个网址（URI），一个字符串或数字（严格来讲都是带类型的字符串，称为literal），或者一个“空节点”（blank node）。主谓宾有一些限制，这里不细说，看后面提到的文档。</p>
