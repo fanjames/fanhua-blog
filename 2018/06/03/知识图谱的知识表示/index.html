@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="传习录">
 <meta property="og:description" content="知识表示（Knowledge Representation，KR，也译为知识表现）是如何将结构化数据组织，以便于机器处理和人的理解的方法。从结构推导出新的结构，这就是推理。传统上KR属于逻辑的分支，但在实践中我们会用很简单、可读、可维护的数据结构。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-06-03T12:14:18.331Z">
+<meta property="og:updated_time" content="2018-06-03T12:25:46.378Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="【转载】知识图谱的知识表示（鲍捷）">
 <meta name="twitter:description" content="知识表示（Knowledge Representation，KR，也译为知识表现）是如何将结构化数据组织，以便于机器处理和人的理解的方法。从结构推导出新的结构，这就是推理。传统上KR属于逻辑的分支，但在实践中我们会用很简单、可读、可维护的数据结构。">
@@ -308,7 +308,7 @@
               
                 <span class="post-meta-item-text">更新于&#58;</span>
               
-              <time title="更新于" itemprop="dateModified" datetime="2018-06-03T20:14:18+08:00">
+              <time title="更新于" itemprop="dateModified" datetime="2018-06-03T20:25:46+08:00">
                 2018-06-03
               </time>
             
@@ -383,8 +383,11 @@
 <p>语义网，或者现在的知识图谱，在应用中，核心问题不是“应该怎么样”，而是“不得不怎么样”。语义推理对数据质量的要求很高，在工程上成本就承受不了。现实的应用，只能逐步提高数据的质量，从数据清洗开始就要承担巨额的投入，然后做实体抽取，实体链接，对齐，消歧，关系抽取，对齐，词库提取，本体建模，这每一步都是海一样的银子砸进去。</p>
 <p>然后在推理中，推理规则都需要人生成。现在机器生成规则的能力很弱，几乎不可用。仅仅是属性和直接关系的查找可以机器做，稍微复杂的长程关系都需要人来写。这在工程部署中有巨大的困难，因为这样的工程师很少，写出来的东西可维护性，性能，普适性都成问题。所以现实中的系统，很少有做推理的。即使是做推理，也很少是一阶逻辑推理，一般也就是if then else，命题逻辑。很多时候还要容忍数据中的噪声，和正则表达式等结合在一起用。所以学术派的推理机，一般都用不了。</p>
 <p>所以我们会了解RDF和OWL，但是并不推荐使用这些W3C标准作为工程的选择。我们认为JSON和关系数据库是工程中成本较小的解决方案。在某些特定场合，图的表示也是合理的。这会在之后的“知识存储”的章节继续讨论。</p>
-<p>其他一些我的个人观点</p>
-<p>我对关联数据的看法 <a href="http://baojie.org/blog/2014/12/21/on-linked-data/" target="_blank" rel="noopener">http://baojie.org/blog/2014/12/21/on-linked-data/</a><br>语义网的工具演化 <a href="http://baojie.org/blog/2014/02/12/semantic-tool-evolution/" target="_blank" rel="noopener">http://baojie.org/blog/2014/02/12/semantic-tool-evolution/</a><br>语义网不需要描述逻辑 <a href="http://baojie.org/blog/2013/02/05/semantic-web-and-description-logic/" target="_blank" rel="noopener">http://baojie.org/blog/2013/02/05/semantic-web-and-description-logic/</a></p>
+<!-- 其他一些我的个人观点
+
+我对关联数据的看法 http://baojie.org/blog/2014/12/21/on-linked-data/
+语义网的工具演化 http://baojie.org/blog/2014/02/12/semantic-tool-evolution/
+语义网不需要描述逻辑 http://baojie.org/blog/2013/02/05/semantic-web-and-description-logic/ -->
 <h1 id="知识表现的数据结构"><a href="#知识表现的数据结构" class="headerlink" title="知识表现的数据结构"></a>知识表现的数据结构</h1><p>在知识提取之后，如何表示知识？其实知识并不神秘，只是一些数据之间的关系。在计算机中的表示，就是数据结构。传统上，我们把那些能够导出新的关系的关系（比如“爸爸的爸爸是爷爷”，这里面“爸爸”和“爷爷”都是关系）看成知识。但是在目前的知识图谱实践中，并不会有严格的区分，我们把各种结构都可以看成广义的知识。</p>
 <p>不过不是所有的数据结构我们会用知识工程的方法来处理，比如集合、哈希表、队列、堆栈、链表等等，一般丢给软件工程去处理。另一类特殊的结构，二维表，我们丢给数据工程去解决。当然数据工程和知识工程之间没有严格的界限，二维表和复杂知识结构表示之间也有交叉，暂留后述。</p>
 <p>知识表现的数据结构，一般来说是那些“复杂”的结构，最常见的就是图（graph）和树（tree）。</p>
@@ -399,72 +402,72 @@
 <p>我们做研究，一定要从实践中来，到实践中去。实际的数据是什么样，用什么样的成本能获得这些数据，这都不是随便能假设的。JSON在和XML的竞争中胜利，基于JSON的REST服务框架在和基于XML的SOAP的竞争中胜利，不是偶然的。因为JSON和REST更符合人的认知的需要，生成他们的成本低，理解他们的成本低，工程师容易理解，最终就用起来了。所以现在XML和SOAP虽然是“国际标准”，但在Web上用的人很少，JSON和REST这些“野路子”一统天下。这和属性图数据库超越RDF数据库是一个道理。</p>
 <p>在Python中使用JSON超级简单，JSON和Python的字典很像，可以转换。看官方文档即可</p>
 <ul>
-<li>json库 <a href="https://docs.python.org/2/library/json.html" target="_blank" rel="noopener">https://docs.python.org/2/library/json.html</a></li>
+<li><a href="https://docs.python.org/2/library/json.html" target="_blank" rel="noopener">json库</a></li>
 </ul>
 <p>掌握下面这些库会让你处理json和字典的时候更开心</p>
 <ul>
-<li>attrdict <a href="https://github.com/bcj/AttrDict" target="_blank" rel="noopener">https://github.com/bcj/AttrDict</a> a[‘foo’][‘bar’]可以写做a.foo.bar 或a[‘foo’].bar。可读/写属性，可递归访问属性，继承dict的各种方法</li>
-<li>marisa-trie <a href="https://github.com/kmike/marisa-trie" target="_blank" rel="noopener">https://github.com/kmike/marisa-trie</a> 超级节约内存的字典</li>
-<li>DAWG <a href="http://dawg.readthedocs.org/en/latest/" target="_blank" rel="noopener">http://dawg.readthedocs.org/en/latest/</a> 另一个超级节约内存的字典</li>
-<li>orderedmultidict <a href="https://github.com/gruns/orderedmultidict" target="_blank" rel="noopener">https://github.com/gruns/orderedmultidict</a> 多值有序字典</li>
-<li>jsonpickle <a href="http://jsonpickle.github.io/" target="_blank" rel="noopener">http://jsonpickle.github.io/</a> JSON持久化。支持更复杂数据的存储</li>
-<li>jq <a href="http://stedolan.github.io/jq/tutorial/" target="_blank" rel="noopener">http://stedolan.github.io/jq/tutorial/</a> 命令行上的json处理和查询</li>
-<li>pjson <a href="https://github.com/igorgue/pjson" target="_blank" rel="noopener">https://github.com/igorgue/pjson</a> 在命令行上彩色打印json</li>
-<li>jsonlint <a href="https://github.com/zaach/jsonlint" target="_blank" rel="noopener">https://github.com/zaach/jsonlint</a> 格式化json</li>
-<li>jsawk <a href="https://github.com/micha/jsawk" target="_blank" rel="noopener">https://github.com/micha/jsawk</a> json的awk，一个快速的命令上的查询工具</li>
-<li>json-diff <a href="https://www.npmjs.org/package/json-diff" target="_blank" rel="noopener">https://www.npmjs.org/package/json-diff</a> 比较两个json</li>
+<li><a href="https://github.com/bcj/AttrDict" target="_blank" rel="noopener">attrdict</a> a[‘foo’][‘bar’]可以写做a.foo.bar 或a[‘foo’].bar。可读/写属性，可递归访问属性，继承dict的各种方法</li>
+<li><a href="https://github.com/kmike/marisa-trie" target="_blank" rel="noopener">marisa-trie</a> 超级节约内存的字典</li>
+<li><a href="http://dawg.readthedocs.org/en/latest/" target="_blank" rel="noopener">DAWG</a> 另一个超级节约内存的字典</li>
+<li><a href="https://github.com/gruns/orderedmultidict" target="_blank" rel="noopener">orderedmultidict</a> 多值有序字典</li>
+<li><a href="http://jsonpickle.github.io/" target="_blank" rel="noopener">jsonpickle</a> JSON持久化。支持更复杂数据的存储</li>
+<li><a href="http://stedolan.github.io/jq/tutorial/" target="_blank" rel="noopener">jq</a> 命令行上的json处理和查询</li>
+<li><a href="https://github.com/igorgue/pjson" target="_blank" rel="noopener">pjson</a> 在命令行上彩色打印json</li>
+<li><a href="https://github.com/zaach/jsonlint" target="_blank" rel="noopener">jsonlint</a> 格式化json</li>
+<li><a href="https://github.com/micha/jsawk" target="_blank" rel="noopener">jsawk</a> json的awk，一个快速的命令上的查询工具</li>
+<li><a href="https://www.npmjs.org/package/json-diff" target="_blank" rel="noopener">json-diff</a> 比较两个json</li>
 </ul>
 <p>以上都是良心推荐，经多年工程实战考验的趁手工具。掌握了这些即使学不好知识图谱，也可以成为不错的数据科学家 :D</p>
 <p>还有一些高级的话题，json pointer， json schema， xml2json， csv2json，暂时不提。我们只需要知道，json的工具链极为丰富。很多时候我们处理数据，就是卡在这些“小”工具上。你要是用了RDF，就会在无数小地方上因为缺少这些小工具而痛苦。</p>
-<p>最后要隆重推荐一下YAML：JSON的超集，有更简洁的语法 <a href="http://yaml.org/" target="_blank" rel="noopener">http://yaml.org/</a></p>
+<p>最后要隆重推荐一下<a href="http://yaml.org/" target="_blank" rel="noopener">YAML</a>：JSON的超集，有更简洁的语法 </p>
 <p>警告 Yaml可能有严重的世界观副作用，过敏者请谨慎使用。</p>
 <p>YAML在我看来比JSON的可读性更好，更加Pythonic（因为其语法接近Python）。当然有人可能会不喜欢缩进，不过Python社区的智力一般比较高，不会有这种偏见。YAML里可以有节点之间的链接，因此可以表示图。此外yaml里可以写!注!释！我认为YAML是天然的最好的知识图谱表示语法。</p>
-<p>PyYAML是Python里的Yaml处理库 <a href="http://pyyaml.org/wiki/PyYAML" target="_blank" rel="noopener">http://pyyaml.org/wiki/PyYAML</a></p>
+<p>(PyYAML)[<a href="http://pyyaml.org/wiki/PyYAML]" target="_blank" rel="noopener">http://pyyaml.org/wiki/PyYAML]</a> 是Python里的Yaml处理库。</p>
 <p>不过Yaml解析的速度比json慢得多，大概只有1/10。但是我们要牢记，知识表示最重要的是对人的友好，不是对机器的友好。速度不是大的问题，大部分的知识库都不是特别大。</p>
 <p>最后多说一句无关的话，很多语言都有可读性更好的类Python语法。下面是我收集的一个列表</p>
 <table>
 <thead>
 <tr>
-<th>语言</th>
-<th>语法</th>
+<th style="text-align:center">语言</th>
+<th style="text-align:center">语法</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>yaml</td>
-<td>readable json</td>
+<td style="text-align:center">yaml</td>
+<td style="text-align:center">readable json</td>
 </tr>
 <tr>
-<td>coffeescript</td>
-<td>readable javascript</td>
+<td style="text-align:center">coffeescript</td>
+<td style="text-align:center">readable javascript</td>
 </tr>
 <tr>
-<td>RapydScript</td>
-<td>readable javascript</td>
+<td style="text-align:center">RapydScript</td>
+<td style="text-align:center">readable javascript</td>
 </tr>
 <tr>
-<td>groovy</td>
-<td>readable java</td>
+<td style="text-align:center">groovy</td>
+<td style="text-align:center">readable java</td>
 </tr>
 <tr>
-<td>markdown</td>
-<td>readable html</td>
+<td style="text-align:center">markdown</td>
+<td style="text-align:center">readable html</td>
 </tr>
 <tr>
-<td>RapydML</td>
-<td>readable html</td>
+<td style="text-align:center">RapydML</td>
+<td style="text-align:center">readable html</td>
 </tr>
 <tr>
-<td>jade</td>
-<td>readable html template</td>
+<td style="text-align:center">jade</td>
+<td style="text-align:center">readable html template</td>
 </tr>
 <tr>
-<td>SASS,Stylus</td>
-<td>readable css</td>
+<td style="text-align:center">SASS,Stylus</td>
+<td style="text-align:center">readable css</td>
 </tr>
 <tr>
-<td>Turtle</td>
-<td>readable RDF</td>
+<td style="text-align:center">Turtle</td>
+<td style="text-align:center">readable RDF</td>
 </tr>
 </tbody>
 </table>
@@ -492,8 +495,8 @@
 <p>主页 <a href="http://json-ld.org/" target="_blank" rel="noopener">http://json-ld.org/</a><br>W3C标准 <a href="https://www.w3.org/TR/2014/REC-json-ld-20140116/" target="_blank" rel="noopener">https://www.w3.org/TR/2014/REC-json-ld-20140116/</a><br>JSON-LD本身现在还没有普及起来。wikidata在用，谷歌的knowlege graph也在用，但大多数人还不知道。我个人认为这是个好东西，虽然难以预料未来能不能火起来。</p>
 <p>JSON-LD体现了两个对人友好的特性：可读性和模块化。第一代的Web知识语言如RDF和OWL，可以类比为知识的“汇编语言”，对机器很友好，对人不友好。Turtle和JSON-LD这类第二代语言，开始“高级化”，注意了方便人来写作和阅读，注意了引入适应人的认知需要的模块。</p>
 <p>模块化机制引入RDF，前后花了十多年的时间。我自己从2004-2010也参与了一些工作。可以说，中间大家都犯了很多错误，走到今天的知识图谱很不容易。今后大家肯定还会继续犯错误。但是如果大家能多想想人的需要，而不仅是机器的需要，可能会少犯些错误吧。</p>
-<h1 id="知识图谱的高级语言"><a href="#知识图谱的高级语言" class="headerlink" title="知识图谱的高级语言"></a>知识图谱的高级语言</h1><p>最后再展开说说我对Web上知识表示的展望，基本基于我一篇老博文《语义网的高级语言》（2012-11-27）</p>
-<p><a href="http://baojie.org/blog/2012/11/27/advanced-language-of-semantic-web/" target="_blank" rel="noopener">http://baojie.org/blog/2012/11/27/advanced-language-of-semantic-web/</a><br>在谈论语义网的时候，要和RDF路线区分开来。</p>
+<h1 id="知识图谱的高级语言"><a href="#知识图谱的高级语言" class="headerlink" title="知识图谱的高级语言"></a>知识图谱的高级语言</h1><p>最后再展开说说我对Web上知识表示的展望，基本基于我一篇老博文<a href="http://baojie.org/blog/2012/11/27/advanced-language-of-semantic-web/" target="_blank" rel="noopener">《语义网的高级语言》</a>（2012-11-27）</p>
+<p>在谈论语义网的时候，要和RDF路线区分开来。</p>
 <p>和一些人谈到语义网，他们说：“语义网死了”。如果从RDF的角度来说，是的——虽然W3C路线的支持者还不承认。</p>
 <p>但是这种观点，就如同计算机在只有机器语言，没有高级语言的时候就断言：“计算机死了”。</p>
 <p>我大胆提出两个假设</p>
@@ -509,17 +512,29 @@
 <p>支持多粒度的知识/数据组织和重用<br>用字符串而不是URL来寻址。不追求addressing uniqueness, 而是probable and eventual addressing uniqueness<br>支持知识的分布式传输（按一定粒度）<br>使用目前主流程序员熟悉的语法形式。<br>尽可能少重新发明轮子——比如rdf:plainLiteral（我是作者之一）这样的字符串类型就没什么必要<br>支持结构化和非结构化数据的混合表达（RDF有Literal，不过，那个太局限了）<br>这个语言的文档不要提什么“语义”（有几个程序员关心SQL的语义？）,不要规定什么schema<br>把推理转化为图的操作或者编程语言内置的运算。在这之外的推理都先不考虑。<br>从一开始就设计成在cluster上能运行的语言<br>拜托，用程序员看的懂的语言和例子写文档。<br>其实这样的语言雏形的一些部分，在不同的技术平台上都已经自发出现了。语义维基，图数据库，新一代检索引擎，都包含了上述部分概念。有心人要做的，就是一个有机的组合。我想，在我写这一段的时候，大概已经有人开始做了。</p>
 <p>我甚至觉得，都没有必要引入一个新的高级语言语法，就在现有的某种贴近RDF的编程语言里，做少量的增加就能实现目的。最理想的就是Python。为什么这么说？JSON本身就是Python的数据结构。而几乎所有的数据API都吃JSON。Python的类与属性定义与关系就是RDF的翻版。</p>
 <p>其实更合适的是Lisp。但是Lisp对抽象思维要求太高，社区又太小。做面向Web的开发，为了工程经济性（人力上的），还是Python比较合适。</p>
-<p>作业<br>自己设计电子邮件的结构化表示。</p>
-<p>设想的使用场景：检索电子邮件。暂不关心如何做知识提取，只关注如何组织元数据。</p>
-<p>电子邮件里有几类可以利用的结构化信息</p>
-<p>邮件本身的元数据，也就是MIME头 <a href="https://en.wikipedia.org/wiki/MIME" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/MIME</a> 如发信人、收信、发信时间等。可以利用python的mime或flanker包来解析</p>
-<p><a href="https://docs.python.org/2/library/email.mime.html" target="_blank" rel="noopener">https://docs.python.org/2/library/email.mime.html</a><br><a href="http://www.pythonclub.org/python-files/mime-type" target="_blank" rel="noopener">http://www.pythonclub.org/python-files/mime-type</a><br><a href="https://github.com/mailgun/flanker" target="_blank" rel="noopener">https://github.com/mailgun/flanker</a><br>邮件编码层的结构关系，如附件、部分（part），也可以在MIME层分解</p>
-<p>单个邮件内部的语法层关系，如段落、引用、签名档</p>
-<p>邮件之间的关系，如回复。MIME头里的In-Reply-To属性记录了这种关系</p>
-<p>邮件内部的实体，如签名档里提到的人名字和电话号码</p>
-<p>邮件内部实体和段落之间的语义关系，如某个段落回复某个段落</p>
-<p>试分析上次分享的Mbox格式的源数据，选择一种自己顺手的数据格式，把电子邮件做结构化表示。没有标准答案，按自己的理解，选择自己认为合适的知识组织粒度、投入的成本。只要能自园其说。</p>
+<!-- 作业
+自己设计电子邮件的结构化表示。
 
+设想的使用场景：检索电子邮件。暂不关心如何做知识提取，只关注如何组织元数据。
+
+电子邮件里有几类可以利用的结构化信息
+
+邮件本身的元数据，也就是[MIME头](https://en.wikipedia.org/wiki/MIME) 如发信人、收信、发信时间等。可以利用python的mime或flanker包来解析
+
+https://docs.python.org/2/library/email.mime.html
+http://www.pythonclub.org/python-files/mime-type
+https://github.com/mailgun/flanker
+邮件编码层的结构关系，如附件、部分（part），也可以在MIME层分解
+
+单个邮件内部的语法层关系，如段落、引用、签名档
+
+邮件之间的关系，如回复。MIME头里的In-Reply-To属性记录了这种关系
+
+邮件内部的实体，如签名档里提到的人名字和电话号码
+
+邮件内部实体和段落之间的语义关系，如某个段落回复某个段落
+
+试分析上次分享的Mbox格式的源数据，选择一种自己顺手的数据格式，把电子邮件做结构化表示。没有标准答案，按自己的理解，选择自己认为合适的知识组织粒度、投入的成本。只要能自园其说。 -->
       
     </div>
     
