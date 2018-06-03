@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="传习录">
 <meta property="og:description" content="知识表示（Knowledge Representation，KR，也译为知识表现）是如何将结构化数据组织，以便于机器处理和人的理解的方法。从结构推导出新的结构，这就是推理。传统上KR属于逻辑的分支，但在实践中我们会用很简单、可读、可维护的数据结构。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-06-03T12:43:19.235Z">
+<meta property="og:updated_time" content="2018-06-03T12:46:32.734Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="【转载】知识图谱的知识表示">
 <meta name="twitter:description" content="知识表示（Knowledge Representation，KR，也译为知识表现）是如何将结构化数据组织，以便于机器处理和人的理解的方法。从结构推导出新的结构，这就是推理。传统上KR属于逻辑的分支，但在实践中我们会用很简单、可读、可维护的数据结构。">
@@ -308,7 +308,7 @@
               
                 <span class="post-meta-item-text">更新于&#58;</span>
               
-              <time title="更新于" itemprop="dateModified" datetime="2018-06-03T20:43:19+08:00">
+              <time title="更新于" itemprop="dateModified" datetime="2018-06-03T20:46:32+08:00">
                 2018-06-03
               </time>
             
@@ -464,8 +464,9 @@
 <ul>
 <li>RDF是一门低级语言，只适合机器使用——如同机器语言或者汇编语言</li>
 <li>语义网需要一门高级语言，面向工程师（人），用来做大规模知识库的写作、重用</li>
-<li>为什么说RDF是低级机器语言？<br>　　用URL来寻址并不错。但是把精确寻址的任务交给人，要求人来设计URL，就如同在C编程中要求人对每个变量赋予内存地址。 RDF是一个“平坦”(flat)的语言，缺少内部的组织单元。有很多建议，引入诸如package, named graph这样的组织单元，但目前还没有达成共识或广泛采用。<br>　　RDF的语法，即使是Turtle，也没有可读性，理解和重用起来非常困难。<br>　　RDF缺少“宏”或者构造高层次组织的能力。其实SPARQL弥补了一点，就是graph pattern；一些语言如SPIN，把graph pattern作为可重用的单元，甚至可以生成新的数据。如果把这个能力作为RDF原生的能力就好了。<br>　　2010年<a href="https://www.w3.org/2009/12/rdf-ws/papers/ws33" target="_blank" rel="noopener">RDF Working Group</a>开预备会议。现在回来看，我那时的想法是错误的：为RDF引入更精确的语义，基于上下文(context)的组织和寻址，并不合适——虽然Pat Hayes后来很喜欢这个想法并在工作组内推一个类似的想法。</li>
+<li>为什么说RDF是低级机器语言？</li>
 </ul>
+<p>　　用URL来寻址并不错。但是把精确寻址的任务交给人，要求人来设计URL，就如同在C编程中要求人对每个变量赋予内存地址。 RDF是一个“平坦”(flat)的语言，缺少内部的组织单元。有很多建议，引入诸如package, named graph这样的组织单元，但目前还没有达成共识或广泛采用。<br>　　RDF的语法，即使是Turtle，也没有可读性，理解和重用起来非常困难。<br>　　RDF缺少“宏”或者构造高层次组织的能力。其实SPARQL弥补了一点，就是graph pattern；一些语言如SPIN，把graph pattern作为可重用的单元，甚至可以生成新的数据。如果把这个能力作为RDF原生的能力就好了。<br>　　2010年<a href="https://www.w3.org/2009/12/rdf-ws/papers/ws33" target="_blank" rel="noopener">RDF Working Group</a>开预备会议。现在回来看，我那时的想法是错误的：为RDF引入更精确的语义，基于上下文(context)的组织和寻址，并不合适——虽然Pat Hayes后来很喜欢这个想法并在工作组内推一个类似的想法。</p>
 <p>　　RDF的问题不是逻辑太少了，而是逻辑太多了。<br>　　知识工程的问题往往是太多考虑机器的需要，而不太考虑人的需要。而知识工程的瓶颈，又恰恰在人而不在机器。<br>　　三元组的问题在于模型的进化能力有限。想为一句话再加个时间戳？想表示Provenance？在RDF制定的早期，就提出了reification作为弥补。但是后来所有人都讨厌这个丑陋的补丁。后来陆续有四元组、五元组、六元组、Context、Named Graph等等各种其他的补丁。越搞越复杂，越来越没人懂。所以我认为，为知识表现专门开发一门语言没必要。特别是在RDF里Literals是二等公民（比如subject不允许是字符串！！），和它们真实的地位不相称。直接利用现有高级语言，如Python或Javascript，某个子集就好，不需要搞三元组。<br>　　RDF 1.1现在的几个努力方向：JSON语法，Named Graph, Turtle Syntax，这些都是好的。但是还不够。我甚至怀疑，在RDF框架内能不能达到易用性的目的。<br>　　因为从一开始，RDF就被设计成machine understandable语言。这本是好的，至少在1999年。但是一个缺少高级语言的情况，就好像编程语言的早期。结果就是知识工程的人月神话。<br>　　现在的情况也很象Web发明的时候：在Internet上，TCP/IP是面向机器的低级语言，而HTML和URL是面向人的高级语言。我觉得，现在有一个强烈的需要来设计一个Semantic Web的高级语言。</p>
 <p>　　这样的高级语言要有什么特征呢？我觉得大体有这样几点</p>
 <ul>
