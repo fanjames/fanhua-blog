@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="传习录">
 <meta property="og:description" content="知识表示（Knowledge Representation，KR，也译为知识表现）是如何将结构化数据组织，以便于机器处理和人的理解的方法。从结构推导出新的结构，这就是推理。传统上KR属于逻辑的分支，但在实践中我们会用很简单、可读、可维护的数据结构。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-06-03T11:57:34.819Z">
+<meta property="og:updated_time" content="2018-06-03T12:07:26.710Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="【转载】知识图谱的知识表示（鲍捷）">
 <meta name="twitter:description" content="知识表示（Knowledge Representation，KR，也译为知识表现）是如何将结构化数据组织，以便于机器处理和人的理解的方法。从结构推导出新的结构，这就是推理。传统上KR属于逻辑的分支，但在实践中我们会用很简单、可读、可维护的数据结构。">
@@ -308,7 +308,7 @@
               
                 <span class="post-meta-item-text">更新于&#58;</span>
               
-              <time title="更新于" itemprop="dateModified" datetime="2018-06-03T19:57:34+08:00">
+              <time title="更新于" itemprop="dateModified" datetime="2018-06-03T20:07:26+08:00">
                 2018-06-03
               </time>
             
@@ -422,8 +422,8 @@
 <p>PyYAML是Python里的Yaml处理库 <a href="http://pyyaml.org/wiki/PyYAML" target="_blank" rel="noopener">http://pyyaml.org/wiki/PyYAML</a></p>
 <p>不过Yaml解析的速度比json慢得多，大概只有1/10。但是我们要牢记，知识表示最重要的是对人的友好，不是对机器的友好。速度不是大的问题，大部分的知识库都不是特别大。</p>
 <p>最后多说一句无关的话，很多语言都有可读性更好的类Python语法。下面是我收集的一个列表</p>
-<p>yaml          – readable json<br>coffeescript  – readable javascript<br>RapydScript   – readable javascript<br>groovy        – readable java<br>markdown      – readable html<br>RapydML       – readable html<br>jade          – readable html template<br>SASS,Stylus   – readable css<br>Turtle        – readable RDF</p>
-<p>有一本经典的编程书《The Art of Readable Code》 <a href="https://book.douban.com/subject/5442971/。" target="_blank" rel="noopener">https://book.douban.com/subject/5442971/。</a> 我觉得同样的在知识表示里，我们应该追求“易读知识的艺术”。工程上，这是特别重要的一件事。</p>
+<p>| yaml         |  – readable json  |<br>| coffeescript |  – readable javascript |<br>| RapydScript  |  – readable javascript |<br>| groovy       |  – readable java  |<br>| markdown     |  – readable html  |<br>| RapydML      |  – readable html  |<br>| jade         |  – readable html template  |<br>| SASS,Stylus  |  – readable css  |<br>| Turtle       |  – readable RDF  | </p>
+<p>有一本经典的编程书<a href="https://book.douban.com/subject/5442971/" target="_blank" rel="noopener">《The Art of Readable Code》</a>。 我觉得同样的在知识表示里，我们应该追求“易读知识的艺术”。工程上，这是特别重要的一件事。</p>
 <h1 id="RDF和OWL"><a href="#RDF和OWL" class="headerlink" title="RDF和OWL"></a>RDF和OWL</h1><p>虽然在大部分的应用场景下我都不会推荐大家使用RDF和OWL，但了解一下它们还是很有必要的，当是打免疫针。当然这两个语言非常的复杂，官方文档打印出来有1000页厚，展开讲的话一个学期也讲不完。好在我们是工程师，只关心如何应用，不需要全面了解。</p>
 <p>但基础的RDF是非常非常简单的，一页纸就能说清楚。RDF的基本单元是三元组（triple）。每个三元组是（主语 谓语 宾语）这样的元组 tuple。主谓宾的取值称为“资源”（Resource，也就是RDF里的R）。资源可以是一个网址（URI），一个字符串或数字（严格来讲都是带类型的字符串，称为literal），或者一个“空节点”（blank node）。主谓宾有一些限制，这里不细说，看后面提到的文档。</p>
 <p>有两种特殊类型的资源。rdfs:Class代表类。rdf:Property代表二元关系。有一种特殊的关系叫rdf:type ，声明一个资源属于某一个类。</p>
@@ -435,7 +435,10 @@
 <p>RDF 1.1 Primer <a href="https://www.w3.org/TR/rdf11-primer/" target="_blank" rel="noopener">https://www.w3.org/TR/rdf11-primer/</a><br>OWL 2 Primer <a href="http://www.w3.org/TR/owl2-primer/" target="_blank" rel="noopener">http://www.w3.org/TR/owl2-primer/</a><br>各种语法里，优先推荐用 Turtle 语法，因为它简洁….得不像RDF <a href="http://www.w3.org/TR/turtle/" target="_blank" rel="noopener">http://www.w3.org/TR/turtle/</a></p>
 <p>Python里的rdflib包可以很方便处理RDF。推荐按rdflib的文档过一遍例子，加深对RDF的理解 <a href="http://rdflib.readthedocs.io/en/stable/" target="_blank" rel="noopener">http://rdflib.readthedocs.io/en/stable/</a></p>
 <p>这个2011年的综述，提到了各种RDF相关的Python包：RdfLib RdfAlchemy Fuxi ORDF Django-RDF Djubby Redland SuRF PySparql Sparta Oort Virtuoso pySesame pynappl HTTP4Store py4s</p>
-<p>Survey of Pythonic tools for RDF and Linked Data programming <a href="http://www.michelepasin.org/blog/2011/02/24/survey-of-pythonic-tools-for-rdf-and-linked-data-programming/" target="_blank" rel="noopener">http://www.michelepasin.org/blog/2011/02/24/survey-of-pythonic-tools-for-rdf-and-linked-data-programming/</a><br>本文没包括的还有：rdfQuery PySWIP pyDatalog PyLog FLiP seth sparrow pymantic pyRDFa djubby pySPARQL。感兴趣的可以查查。我个人很喜欢pyDatalog，虽然不是RDF的推理机，但大部分RDF的可以完成的建模用pyDatalog也都能做，我觉得更自然些。</p>
+<ul>
+<li><a href="http://www.michelepasin.org/blog/2011/02/24/survey-of-pythonic-tools-for-rdf-and-linked-data-programming/" target="_blank" rel="noopener">《Survey of Pythonic tools for RDF and Linked Data programming》</a></li>
+</ul>
+<p>本文没包括的还有：rdfQuery PySWIP pyDatalog PyLog FLiP seth sparrow pymantic pyRDFa djubby pySPARQL。感兴趣的可以查查。我个人很喜欢pyDatalog，虽然不是RDF的推理机，但大部分RDF的可以完成的建模用pyDatalog也都能做，我觉得更自然些。</p>
 <p>参考手册</p>
 <p>语义网速查表 <a href="http://ebiquity.umbc.edu/resource/html/id/94/" target="_blank" rel="noopener">http://ebiquity.umbc.edu/resource/html/id/94/</a> （丁力写的）<br>OWL语法速查表 <a href="https://www.w3.org/TR/2012/REC-owl2-quick-reference-20121211/" target="_blank" rel="noopener">https://www.w3.org/TR/2012/REC-owl2-quick-reference-20121211/</a> （我写的）</p>
 <h1 id="JSON-LD"><a href="#JSON-LD" class="headerlink" title="JSON-LD"></a>JSON-LD</h1><p>JSON-LD是RDF的JSON语法，其中LD代表Linked Data。它要解决的是RDF没有好的Web兼容语法问题。经典的RDF语法是XML的，不仅罗嗦和丑陋，也集成了XML“重”的一些特征，适合“企业级”（如今这个词差不多就是恐龙、笨拙、难用的代名词）应用。JSON-LD就是想提供一个和互联网事实标准更兼容的、“轻”的语法。</p>
