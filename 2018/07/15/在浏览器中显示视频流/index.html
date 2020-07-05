@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/fanhua-blog/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/fanhua-blog/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/fanhua-blog/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/fanhua-blog/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/fanhua-blog/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/fanhua-blog/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/fanhua-blog/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Python," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前阵子在捣鼓人脸识别的东西，一直都是采用OpenCV窗口显示摄像头视频，后来想把程序做成web应用，就要考虑如何把视频流嵌入到浏览器中，找了一圈只找到一种能在Flask中使用的方法。这种方法采用动态JPEG（Motion JPEG）的方式采集视频帧，然后将编码成JPEG图片传到浏览器，就这样动态视频。这种方式实现起来比较简单，并且大多数浏览器（Firefox、Chrome、Safari）都原生">
+<meta name="keywords" content="Python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="在浏览器中显示视频流">
+<meta property="og:url" content="https://fanjames.github.io/fanhua-blog/2018/07/15/在浏览器中显示视频流/index.html">
+<meta property="og:site_name" content="传习录">
+<meta property="og:description" content="前阵子在捣鼓人脸识别的东西，一直都是采用OpenCV窗口显示摄像头视频，后来想把程序做成web应用，就要考虑如何把视频流嵌入到浏览器中，找了一圈只找到一种能在Flask中使用的方法。这种方法采用动态JPEG（Motion JPEG）的方式采集视频帧，然后将编码成JPEG图片传到浏览器，就这样动态视频。这种方式实现起来比较简单，并且大多数浏览器（Firefox、Chrome、Safari）都原生">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2020-07-05T07:27:09.679Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="在浏览器中显示视频流">
+<meta name="twitter:description" content="前阵子在捣鼓人脸识别的东西，一直都是采用OpenCV窗口显示摄像头视频，后来想把程序做成web应用，就要考虑如何把视频流嵌入到浏览器中，找了一圈只找到一种能在Flask中使用的方法。这种方法采用动态JPEG（Motion JPEG）的方式采集视频帧，然后将编码成JPEG图片传到浏览器，就这样动态视频。这种方式实现起来比较简单，并且大多数浏览器（Firefox、Chrome、Safari）都原生">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/fanhua-blog/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://fanjames.github.io/fanhua-blog/2018/07/15/在浏览器中显示视频流/"/>
+
+
+
+
+
+  <title>在浏览器中显示视频流 | 传习录</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/fanhua-blog/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">传习录</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">用文字记录时间</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/fanhua-blog/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/fanhua-blog/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/fanhua-blog/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/fanhua-blog/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/fanhua-blog/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://fanjames.github.io/fanhua-blog/fanhua-blog/2018/07/15/在浏览器中显示视频流/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="fanhua">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/fanhua-blog/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="传习录">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">在浏览器中显示视频流</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-15T18:07:09+00:00">
+                2018-07-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/fanhua-blog/categories/编程/" itemprop="url" rel="index">
+                    <span itemprop="name">编程</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/fanhua-blog/2018/07/15/在浏览器中显示视频流/" class="leancloud_visitors" data-flag-title="在浏览器中显示视频流">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>　　前阵子在捣鼓人脸识别的东西，一直都是采用OpenCV窗口显示摄像头视频，后来想把程序做成web应用，就要考虑如何把视频流嵌入到浏览器中，找了一圈只找到一种能在Flask中使用的方法。这种方法采用动态JPEG（Motion JPEG）的方式采集视频帧，然后将编码成JPEG图片传到浏览器，就这样动态视频。这种方式实现起来比较简单，并且大多数浏览器（Firefox、Chrome、Safari）都原生支持M-JPEG格式，但是对于事件的支持好像不太友好，<a href="https://blog.miguelgrinberg.com/post/flask-video-streaming-revisited" target="_blank" rel="noopener">Miguel Grinberg的博客</a>中提到可以采用coroutine的方式，后面找时间试一下。<br><a id="more"></a></p>
+<p>　　感慨一下，实践果然是非常锻炼人的，一个小问题往往牵扯到很多的细节，要想解决好又要去了解很多相关的技术原理。在一个没有专业分工的地方，所有的东西只能自己去解决，慢慢修炼成为一个全栈工程师，虽然不用样样精通，但必须至少在一个方面是专家，并且对其他方向有一定的了解。下面就记录一下在浏览器中嵌入视频流的解决方案。</p>
+<div class="note info"><p><strong><a href="https://zh.wikipedia.org/wiki/Motion_JPEG" target="_blank" rel="noopener">维基百科</a></strong>对M-JPEG的介绍：<br>　　M-JPEG只使用帧内压缩（区别于算法更复杂的帧间压缩），只单独的对某一帧进行压缩，而不考虑视频画面中不同帧之间的变化。因此压缩效率比较低，一般低于1:20，而使用了帧间压缩的现代视频压缩格式（如MPEG1、MPEG2和H.264/MPEG-4 AVC）一般能超过1:50。由于各帧直接是相互独立的，M-JPEG的编解码在对运算能力和内存的要求较低。<br>　　由于M-JPEG是纯粹的帧内压缩，每帧画面的质量只与编码率和画面的空域复杂度有关。包含大面积平滑变化或者单色区域的帧压缩效果较好，而包含复杂纹理、细线条（如文字）的区域容易产生由于离散余弦变换产生的噪声。M-JPEG的压缩效果与视频的时域复杂度无关。</p></div>
+<p><iframe src="//www.slideshare.net/slideshow/embed_code/key/bAlwYpbWDpmNKM" width="720" height="480" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC; border-width:1px; margin-bottom:5px; max-width: 100%;" allowfullscreen> </iframe> <div style="margin-bottom:5px"> <strong> <a href="//www.slideshare.net/seldon_io/tensorflow-london-14-ben-hall-machine-learning-workloads-with-kubernetes-and-kubeflow" title="TensorFlow London 14: Ben Hall &#x27;Machine Learning Workloads with Kubernetes and Kubeflow&#x27;" target="_blank">TensorFlow London 14: Ben Hall &#x27;Machine Learning Workloads with Kubernetes and Kubeflow&#x27;</a> </strong> from <strong><a href="https://www.slideshare.net/seldon_io" target="_blank">Seldon</a></strong> </div></p>
+<p>multipart视频流的content type必须是<code>multipart/x-mixed-replace</code>，如下所示，其中<code>--frame</code>作为标识符分隔每一帧图像。<br><figure class="highlight html"><table><tr><td class="code"><pre><span class="line">HTTP/1.1 200 OK</span><br><span class="line">Content-Type: multipart/x-mixed-replace; boundary=frame</span><br><span class="line"></span><br><span class="line">--frame</span><br><span class="line">Content-Type: image/jpeg</span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">jpeg</span> <span class="attr">data</span> <span class="attr">here</span>&gt;</span></span><br><span class="line">--frame</span><br><span class="line">Content-Type: image/jpeg</span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">jpeg</span> <span class="attr">data</span> <span class="attr">here</span>&gt;</span></span><br><span class="line">...</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BaseCamera</span><span class="params">(object)</span>:</span></span><br><span class="line">    thread = <span class="keyword">None</span>  <span class="comment"># background thread that reads frames from camera</span></span><br><span class="line">    frame = <span class="keyword">None</span>  <span class="comment"># current frame is stored here by background thread</span></span><br><span class="line">    last_access = <span class="number">0</span>  <span class="comment"># time of last client access to the camera</span></span><br><span class="line">    event = CameraEvent()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"""Start the background camera thread if it isn't running yet."""</span></span><br><span class="line">        <span class="keyword">if</span> BaseCamera.thread <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">            BaseCamera.last_access = time.time()</span><br><span class="line"></span><br><span class="line">            <span class="comment"># start background frame thread</span></span><br><span class="line">            BaseCamera.thread = threading.Thread(target=self._thread)</span><br><span class="line">            BaseCamera.thread.start()</span><br><span class="line"></span><br><span class="line">            <span class="comment"># wait until frames are available</span></span><br><span class="line">            <span class="keyword">while</span> self.get_frame() <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">                time.sleep(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_frame</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"""Return the current camera frame."""</span></span><br><span class="line">        BaseCamera.last_access = time.time()</span><br><span class="line"></span><br><span class="line">        <span class="comment"># wait for a signal from the camera thread</span></span><br><span class="line">        BaseCamera.event.wait()</span><br><span class="line">        BaseCamera.event.clear()</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> BaseCamera.frame</span><br><span class="line"></span><br><span class="line"><span class="meta">    @staticmethod</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">frames</span><span class="params">()</span>:</span></span><br><span class="line">        <span class="string">"""Generator that returns frames from the camera."""</span></span><br><span class="line">        <span class="keyword">raise</span> RuntimeError(<span class="string">'Must be implemented by subclasses.'</span>)</span><br><span class="line"></span><br><span class="line"><span class="meta">    @classmethod</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_thread</span><span class="params">(cls)</span>:</span></span><br><span class="line">        <span class="string">"""Camera background thread."""</span></span><br><span class="line">        print(<span class="string">'Starting camera thread.'</span>)</span><br><span class="line">        frames_iterator = cls.frames()</span><br><span class="line">        <span class="keyword">for</span> frame <span class="keyword">in</span> frames_iterator:</span><br><span class="line">            BaseCamera.frame = frame</span><br><span class="line">            BaseCamera.event.set()  <span class="comment"># send signal to clients</span></span><br><span class="line">            time.sleep(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">            <span class="comment"># if there hasn't been any clients asking for frames in</span></span><br><span class="line">            <span class="comment"># the last 10 seconds then stop the thread</span></span><br><span class="line">            <span class="keyword">if</span> time.time() - BaseCamera.last_access &gt; <span class="number">10</span>:</span><br><span class="line">                frames_iterator.close()</span><br><span class="line">                print(<span class="string">'Stopping camera thread due to inactivity.'</span>)</span><br><span class="line">                <span class="keyword">break</span></span><br><span class="line">        BaseCamera.thread = <span class="keyword">None</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> cv2</span><br><span class="line"><span class="keyword">from</span> base_camera <span class="keyword">import</span> BaseCamera</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Camera</span><span class="params">(BaseCamera)</span>:</span></span><br><span class="line">    video_source = <span class="number">0</span></span><br><span class="line"></span><br><span class="line"><span class="meta">    @staticmethod</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">set_video_source</span><span class="params">(source)</span>:</span></span><br><span class="line">        Camera.video_source = source</span><br><span class="line"></span><br><span class="line"><span class="meta">    @staticmethod</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">frames</span><span class="params">()</span>:</span></span><br><span class="line">        camera = cv2.VideoCapture(Camera.video_source)</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> camera.isOpened():</span><br><span class="line">            <span class="keyword">raise</span> RuntimeError(<span class="string">'Could not start camera.'</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> <span class="keyword">True</span>:</span><br><span class="line">            <span class="comment"># read current frame</span></span><br><span class="line">            _, img = camera.read()</span><br><span class="line"></span><br><span class="line">            <span class="comment"># encode as a jpeg image and return it</span></span><br><span class="line">            <span class="keyword">yield</span> cv2.imencode(<span class="string">'.jpg'</span>, img)[<span class="number">1</span>].tobytes()</span><br></pre></td></tr></table></figure>
+<!-- ### 参考 -->
+<div class="note primary"><p>参考 </p></div>
+<p>[1] <a href="https://blog.miguelgrinberg.com/post/flask-video-streaming-revisited" target="_blank" rel="noopener">https://blog.miguelgrinberg.com/post/flask-video-streaming-revisited</a><br>[2] <a href="https://github.com/miguelgrinberg/flask-video-streaming" target="_blank" rel="noopener">https://github.com/miguelgrinberg/flask-video-streaming</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/fanhua-blog/tags/Python/" rel="tag"># Python</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/fanhua-blog/2018/07/04/最近一段时间的所见所想/" rel="next" title="最近一段时间的所见所想">
+                <i class="fa fa-chevron-left"></i> 最近一段时间的所见所想
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/fanhua-blog/images/avatar.jpg"
+                alt="fanhua" />
+            
+              <p class="site-author-name" itemprop="name">fanhua</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/fanhua-blog/archives/">
+              
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/fanhua-blog/categories/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/fanhua-blog/tags/index.html">
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">fanhua</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/fanhua-blog/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/fanhua-blog/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/fanhua-blog/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/fanhua-blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/fanhua-blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/fanhua-blog/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/fanhua-blog/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/fanhua-blog/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/fanhua-blog/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/fanhua-blog/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/fanhua-blog/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/fanhua-blog/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/fanhua-blog/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("ivYeLSqHrc8eD6oFYmAEj6hw-gzGzoHsz", "G5040tjtoggIEllgy9TEFE5Y");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+  <script type="text/javascript" src="/fanhua-blog/js/src/js.cookie.js?v=5.1.4"></script>
+  <script type="text/javascript" src="/fanhua-blog/js/src/scroll-cookie.js?v=5.1.4"></script>
+
+
+  
+
+</body>
+</html>
