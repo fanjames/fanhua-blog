@@ -58,6 +58,13 @@ default_category: uncategorized
 category_map:
 tag_map:
 
+# Show number of visitors to each article.
+# You can visit https://leancloud.cn get AppID and AppKey.
+leancloud_visitors:
+  enable: false
+  app_id: ivYeLSqHrc8eD6oFYmAEj6hw-gzGzoHsz
+  app_key: G5040tjtoggIEllgy9TEFE5Y
+
 # Date / Time format
 ## Hexo uses Moment.js to parse and display date
 ## You can customize the date format as defined in
