@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.7.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"fanjames.github.io","root":"/blog/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="前阵子在捣鼓人脸识别的东西，一直都是采用OpenCV窗口显示摄像头视频，后来想把程序做成web应用，就要考虑如何把视频流嵌入到浏览器中，找了一圈只找到一种能在Flask中使用的方法。这种方法采用动态JPEG（Motion JPEG）的方式采集视频帧，然后将编码成JPEG图片传到浏览器，就这样动态视频。这种方式实现起来比较简单，并且大多数浏览器（Firefox、Chrome、Safari）都原生">
+<meta name="keywords" content="Python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="在浏览器中显示视频流">
+<meta property="og:url" content="https://fanjames.github.io/blog/2018/07/15/在浏览器中显示视频流/index.html">
+<meta property="og:site_name" content="传习录">
+<meta property="og:description" content="前阵子在捣鼓人脸识别的东西，一直都是采用OpenCV窗口显示摄像头视频，后来想把程序做成web应用，就要考虑如何把视频流嵌入到浏览器中，找了一圈只找到一种能在Flask中使用的方法。这种方法采用动态JPEG（Motion JPEG）的方式采集视频帧，然后将编码成JPEG图片传到浏览器，就这样动态视频。这种方式实现起来比较简单，并且大多数浏览器（Firefox、Chrome、Safari）都原生">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2020-07-05T08:57:28.772Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="在浏览器中显示视频流">
+<meta name="twitter:description" content="前阵子在捣鼓人脸识别的东西，一直都是采用OpenCV窗口显示摄像头视频，后来想把程序做成web应用，就要考虑如何把视频流嵌入到浏览器中，找了一圈只找到一种能在Flask中使用的方法。这种方法采用动态JPEG（Motion JPEG）的方式采集视频帧，然后将编码成JPEG图片传到浏览器，就这样动态视频。这种方式实现起来比较简单，并且大多数浏览器（Firefox、Chrome、Safari）都原生">
+
+<link rel="canonical" href="https://fanjames.github.io/blog/2018/07/15/在浏览器中显示视频流/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>在浏览器中显示视频流 | 传习录</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="تشغيل شريط التصفح">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">传习录</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">用文字记录时间</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://fanjames.github.io/blog/2018/07/15/在浏览器中显示视频流/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+      <meta itemprop="name" content="Author">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="传习录">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          在浏览器中显示视频流
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Post created:2018-07-15 18:07:09" itemprop="dateCreated datePublished" datetime="2018-07-15T18:07:09+08:00">2018-07-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">عُدل في</span>
+                <time title="Post modified:2020-07-05 16:57:28" itemprop="dateModified" datetime="2020-07-05T16:57:28+08:00">2020-07-05</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/编程/" itemprop="url" rel="index"><span itemprop="name">编程</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>　　前阵子在捣鼓人脸识别的东西，一直都是采用OpenCV窗口显示摄像头视频，后来想把程序做成web应用，就要考虑如何把视频流嵌入到浏览器中，找了一圈只找到一种能在Flask中使用的方法。这种方法采用动态JPEG（Motion JPEG）的方式采集视频帧，然后将编码成JPEG图片传到浏览器，就这样动态视频。这种方式实现起来比较简单，并且大多数浏览器（Firefox、Chrome、Safari）都原生支持M-JPEG格式，但是对于事件的支持好像不太友好，<a href="https://blog.miguelgrinberg.com/post/flask-video-streaming-revisited" target="_blank" rel="noopener">Miguel Grinberg的博客</a>中提到可以采用coroutine的方式，后面找时间试一下。<br><a id="more"></a></p>
+<p>　　感慨一下，实践果然是非常锻炼人的，一个小问题往往牵扯到很多的细节，要想解决好又要去了解很多相关的技术原理。在一个没有专业分工的地方，所有的东西只能自己去解决，慢慢修炼成为一个全栈工程师，虽然不用样样精通，但必须至少在一个方面是专家，并且对其他方向有一定的了解。下面就记录一下在浏览器中嵌入视频流的解决方案。</p>
+<div class="note info">
+            <p><strong><a href="https://zh.wikipedia.org/wiki/Motion_JPEG" target="_blank" rel="noopener">维基百科</a></strong>对M-JPEG的介绍：<br>　　M-JPEG只使用帧内压缩（区别于算法更复杂的帧间压缩），只单独的对某一帧进行压缩，而不考虑视频画面中不同帧之间的变化。因此压缩效率比较低，一般低于1:20，而使用了帧间压缩的现代视频压缩格式（如MPEG1、MPEG2和H.264/MPEG-4 AVC）一般能超过1:50。由于各帧直接是相互独立的，M-JPEG的编解码在对运算能力和内存的要求较低。<br>　　由于M-JPEG是纯粹的帧内压缩，每帧画面的质量只与编码率和画面的空域复杂度有关。包含大面积平滑变化或者单色区域的帧压缩效果较好，而包含复杂纹理、细线条（如文字）的区域容易产生由于离散余弦变换产生的噪声。M-JPEG的压缩效果与视频的时域复杂度无关。</p>
+          </div>
+<p><iframe src="//www.slideshare.net/slideshow/embed_code/key/bAlwYpbWDpmNKM" width="720" height="480" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC; border-width:1px; margin-bottom:5px; max-width: 100%;" allowfullscreen> </iframe> <div style="margin-bottom:5px"> <strong> <a href="//www.slideshare.net/seldon_io/tensorflow-london-14-ben-hall-machine-learning-workloads-with-kubernetes-and-kubeflow" title="TensorFlow London 14: Ben Hall &#x27;Machine Learning Workloads with Kubernetes and Kubeflow&#x27;" target="_blank">TensorFlow London 14: Ben Hall &#x27;Machine Learning Workloads with Kubernetes and Kubeflow&#x27;</a> </strong> from <strong><a href="https://www.slideshare.net/seldon_io" target="_blank">Seldon</a></strong> </div></p>
+<p>multipart视频流的content type必须是<code>multipart/x-mixed-replace</code>，如下所示，其中<code>--frame</code>作为标识符分隔每一帧图像。<br><figure class="highlight html"><table><tr><td class="code"><pre><span class="line">HTTP/1.1 200 OK</span><br><span class="line">Content-Type: multipart/x-mixed-replace; boundary=frame</span><br><span class="line"></span><br><span class="line">--frame</span><br><span class="line">Content-Type: image/jpeg</span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">jpeg</span> <span class="attr">data</span> <span class="attr">here</span>&gt;</span></span><br><span class="line">--frame</span><br><span class="line">Content-Type: image/jpeg</span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">jpeg</span> <span class="attr">data</span> <span class="attr">here</span>&gt;</span></span><br><span class="line">...</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BaseCamera</span><span class="params">(object)</span>:</span></span><br><span class="line">    thread = <span class="keyword">None</span>  <span class="comment"># background thread that reads frames from camera</span></span><br><span class="line">    frame = <span class="keyword">None</span>  <span class="comment"># current frame is stored here by background thread</span></span><br><span class="line">    last_access = <span class="number">0</span>  <span class="comment"># time of last client access to the camera</span></span><br><span class="line">    event = CameraEvent()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"""Start the background camera thread if it isn't running yet."""</span></span><br><span class="line">        <span class="keyword">if</span> BaseCamera.thread <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">            BaseCamera.last_access = time.time()</span><br><span class="line"></span><br><span class="line">            <span class="comment"># start background frame thread</span></span><br><span class="line">            BaseCamera.thread = threading.Thread(target=self._thread)</span><br><span class="line">            BaseCamera.thread.start()</span><br><span class="line"></span><br><span class="line">            <span class="comment"># wait until frames are available</span></span><br><span class="line">            <span class="keyword">while</span> self.get_frame() <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">                time.sleep(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_frame</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"""Return the current camera frame."""</span></span><br><span class="line">        BaseCamera.last_access = time.time()</span><br><span class="line"></span><br><span class="line">        <span class="comment"># wait for a signal from the camera thread</span></span><br><span class="line">        BaseCamera.event.wait()</span><br><span class="line">        BaseCamera.event.clear()</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> BaseCamera.frame</span><br><span class="line"></span><br><span class="line"><span class="meta">    @staticmethod</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">frames</span><span class="params">()</span>:</span></span><br><span class="line">        <span class="string">"""Generator that returns frames from the camera."""</span></span><br><span class="line">        <span class="keyword">raise</span> RuntimeError(<span class="string">'Must be implemented by subclasses.'</span>)</span><br><span class="line"></span><br><span class="line"><span class="meta">    @classmethod</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_thread</span><span class="params">(cls)</span>:</span></span><br><span class="line">        <span class="string">"""Camera background thread."""</span></span><br><span class="line">        print(<span class="string">'Starting camera thread.'</span>)</span><br><span class="line">        frames_iterator = cls.frames()</span><br><span class="line">        <span class="keyword">for</span> frame <span class="keyword">in</span> frames_iterator:</span><br><span class="line">            BaseCamera.frame = frame</span><br><span class="line">            BaseCamera.event.set()  <span class="comment"># send signal to clients</span></span><br><span class="line">            time.sleep(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">            <span class="comment"># if there hasn't been any clients asking for frames in</span></span><br><span class="line">            <span class="comment"># the last 10 seconds then stop the thread</span></span><br><span class="line">            <span class="keyword">if</span> time.time() - BaseCamera.last_access &gt; <span class="number">10</span>:</span><br><span class="line">                frames_iterator.close()</span><br><span class="line">                print(<span class="string">'Stopping camera thread due to inactivity.'</span>)</span><br><span class="line">                <span class="keyword">break</span></span><br><span class="line">        BaseCamera.thread = <span class="keyword">None</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> cv2</span><br><span class="line"><span class="keyword">from</span> base_camera <span class="keyword">import</span> BaseCamera</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Camera</span><span class="params">(BaseCamera)</span>:</span></span><br><span class="line">    video_source = <span class="number">0</span></span><br><span class="line"></span><br><span class="line"><span class="meta">    @staticmethod</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">set_video_source</span><span class="params">(source)</span>:</span></span><br><span class="line">        Camera.video_source = source</span><br><span class="line"></span><br><span class="line"><span class="meta">    @staticmethod</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">frames</span><span class="params">()</span>:</span></span><br><span class="line">        camera = cv2.VideoCapture(Camera.video_source)</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> camera.isOpened():</span><br><span class="line">            <span class="keyword">raise</span> RuntimeError(<span class="string">'Could not start camera.'</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> <span class="keyword">True</span>:</span><br><span class="line">            <span class="comment"># read current frame</span></span><br><span class="line">            _, img = camera.read()</span><br><span class="line"></span><br><span class="line">            <span class="comment"># encode as a jpeg image and return it</span></span><br><span class="line">            <span class="keyword">yield</span> cv2.imencode(<span class="string">'.jpg'</span>, img)[<span class="number">1</span>].tobytes()</span><br></pre></td></tr></table></figure>
+<!-- ### 参考 -->
+<div class="note primary">
+            <p>参考 </p>
+          </div>
+<p>[1] <a href="https://blog.miguelgrinberg.com/post/flask-video-streaming-revisited" target="_blank" rel="noopener">https://blog.miguelgrinberg.com/post/flask-video-streaming-revisited</a><br>[2] <a href="https://github.com/miguelgrinberg/flask-video-streaming" target="_blank" rel="noopener">https://github.com/miguelgrinberg/flask-video-streaming</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/blog/tags/Python/" rel="tag"># Python</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2018/07/04/最近一段时间的所见所想/" rel="prev" title="最近一段时间的所见所想">
+      <i class="fa fa-chevron-left"></i> 最近一段时间的所见所想
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Author</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">8</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Author</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+<script src="/blog/js/utils.js"></script><script src="/blog/js/motion.js"></script>
+<script src="/blog/js/schemes/pisces.js"></script>
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
