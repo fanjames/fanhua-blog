@@ -1,19 +1,19 @@
+sudo: false
 language: node_js
-node_js: stable
+node_js:
+  - 10 # use nodejs v10 LTS
+cache: npm
 branches:
   only:
-  - master
-cache:
-  directories:
-  - node_modules
-before_install:
-- git config --global user.name "fanjames"
-- git config --global user.email "fanhuajames@gmail.com"
-- npm install -g hexo-cli
-- export HEXO_DEPLOYER_REPO=https://$REPO_TOKEN@github.com/fanjames/blog.git
-install:
-- npm i
+    - blog-source # build master branch only
 script:
-- hexo clean
-- hexo generate
-- hexo deploy
+  - hexo generate # generate static files
+deploy:
+  provider: pages
+  skip-cleanup: true
+  github-token: $REPO_TOKEN
+  keep-history: true
+  target_branch: master
+  on:
+    branch: blog-source
+  local-dir: public
