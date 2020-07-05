@@ -9,12 +9,12 @@ description:
 keywords: 
 author: fanhua
 language: zh-Hans
-timezone:
+timezone: Asia/Shanghai
 
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
-url: https://fanjames.github.io/fanhua-blog/
-root: /fanhua-blog/
+url: https://fanjames.github.io/blog/
+root: /blog/
 permalink: :year/:month/:day/:title/
 permalink_defaults:
 
@@ -79,6 +79,6 @@ theme: next
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
   type: git
-  repo: https://github.com/fanjames/fanhua-blog.git
+  repo: https://github.com/fanjames/blog.git
   branch: master
 
