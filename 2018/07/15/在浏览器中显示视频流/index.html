@@ -51,7 +51,7 @@
     <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand"
-       href="/blog/">&nbsp;<strong>Fluid</strong>&nbsp;</a>
+       href="/blog/">&nbsp;<strong>传习录</strong>&nbsp;</a>
 
     <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
             data-target="#navbarSupportedContent"
@@ -159,7 +159,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      327 字
+      936 字
     </span>
   
 
@@ -169,12 +169,20 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      3
+      13
        分钟
     </span>
   
 
   
+  
+    
+      <!-- 不蒜子统计文章PV -->
+      <span id="busuanzi_container_page_pv" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="busuanzi_value_page_pv"></span> 次
+      </span>
+    
   
 </div>
 
@@ -202,9 +210,9 @@
             <article class="markdown-body">
               <p>　　前阵子在捣鼓人脸识别的东西，一直都是采用OpenCV窗口显示摄像头视频，后来想把程序做成web应用，就要考虑如何把视频流嵌入到浏览器中，找了一圈只找到一种能在Flask中使用的方法。这种方法采用动态JPEG（Motion JPEG）的方式采集视频帧，然后将编码成JPEG图片传到浏览器，就这样动态视频。这种方式实现起来比较简单，并且大多数浏览器（Firefox、Chrome、Safari）都原生支持M-JPEG格式，但是对于事件的支持好像不太友好，<a href="https://blog.miguelgrinberg.com/post/flask-video-streaming-revisited" target="_blank" rel="noopener">Miguel Grinberg的博客</a>中提到可以采用coroutine的方式，后面找时间试一下。<br><a id="more"></a></p>
 <p>　　感慨一下，实践果然是非常锻炼人的，一个小问题往往牵扯到很多的细节，要想解决好又要去了解很多相关的技术原理。在一个没有专业分工的地方，所有的东西只能自己去解决，慢慢修炼成为一个全栈工程师，虽然不用样样精通，但必须至少在一个方面是专家，并且对其他方向有一定的了解。下面就记录一下在浏览器中嵌入视频流的解决方案。</p>
-<!-- <div class="note note-info">
-            <p>  –&gt;<br><strong><a href="https://zh.wikipedia.org/wiki/Motion_JPEG">维基百科</a></strong>对M-JPEG的介绍：<br>　　M-JPEG只使用帧内压缩（区别于算法更复杂的帧间压缩），只单独的对某一帧进行压缩，而不考虑视频画面中不同帧之间的变化。因此压缩效率比较低，一般低于1:20，而使用了帧间压缩的现代视频压缩格式（如MPEG1、MPEG2和H.264/MPEG-4 AVC）一般能超过1:50。由于各帧直接是相互独立的，M-JPEG的编解码在对运算能力和内存的要求较低。<br>　　由于M-JPEG是纯粹的帧内压缩，每帧画面的质量只与编码率和画面的空域复杂度有关。包含大面积平滑变化或者单色区域的帧压缩效果较好，而包含复杂纹理、细线条（如文字）的区域容易产生由于离散余弦变换产生的噪声。M-JPEG的压缩效果与视频的时域复杂度无关。<br>&lt;!– </p>
-          </div> –&gt;
+<div class="note note-info">
+            <p><strong><a href="https://zh.wikipedia.org/wiki/Motion_JPEG" target="_blank" rel="noopener">维基百科</a></strong>对M-JPEG的介绍：<br>　　M-JPEG只使用帧内压缩（区别于算法更复杂的帧间压缩），只单独的对某一帧进行压缩，而不考虑视频画面中不同帧之间的变化。因此压缩效率比较低，一般低于1:20，而使用了帧间压缩的现代视频压缩格式（如MPEG1、MPEG2和H.264/MPEG-4 AVC）一般能超过1:50。由于各帧直接是相互独立的，M-JPEG的编解码在对运算能力和内存的要求较低。<br>　　由于M-JPEG是纯粹的帧内压缩，每帧画面的质量只与编码率和画面的空域复杂度有关。包含大面积平滑变化或者单色区域的帧压缩效果较好，而包含复杂纹理、细线条（如文字）的区域容易产生由于离散余弦变换产生的噪声。M-JPEG的压缩效果与视频的时域复杂度无关。</p>
+          </div>
 <p><iframe src="//www.slideshare.net/slideshow/embed_code/key/bAlwYpbWDpmNKM" width="720" height="480" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC; border-width:1px; margin-bottom:5px; max-width: 100%;" allowfullscreen> </iframe> <div style="margin-bottom:5px"> <strong> <a href="//www.slideshare.net/seldon_io/tensorflow-london-14-ben-hall-machine-learning-workloads-with-kubernetes-and-kubeflow" title="TensorFlow London 14: Ben Hall &#x27;Machine Learning Workloads with Kubernetes and Kubeflow&#x27;" target="_blank">TensorFlow London 14: Ben Hall &#x27;Machine Learning Workloads with Kubernetes and Kubeflow&#x27;</a> </strong> from <strong><a href="https://www.slideshare.net/seldon_io" target="_blank">Seldon</a></strong> </div></p>
 <p>multipart视频流的content type必须是<code>multipart/x-mixed-replace</code>，如下所示，其中<code>--frame</code>作为标识符分隔每一帧图像。<br><pre><code class="hljs html">HTTP/1.1 200 OK
 Content-Type: multipart/x-mixed-replace; boundary=frame
@@ -293,11 +301,11 @@ Content-Type: image/jpeg
             <span class="hljs-comment"># encode as a jpeg image and return it</span>
             <span class="hljs-keyword">yield</span> cv2.imencode(<span class="hljs-string">'.jpg'</span>, img)[<span class="hljs-number">1</span>].tobytes()</code></pre>
 <!-- ### 参考 -->
-<!-- <div class="note note-primary">
+<div class="note note-primary">
             <p>参考 </p>
-          </div> –&gt;
-<p>[1] <a href="https://blog.miguelgrinberg.com/post/flask-video-streaming-revisited">https://blog.miguelgrinberg.com/post/flask-video-streaming-revisited</a><br>[2] <a href="https://github.com/miguelgrinberg/flask-video-streaming">https://github.com/miguelgrinberg/flask-video-streaming</a></p>
--->
+          </div>
+<p>[1] <a href="https://blog.miguelgrinberg.com/post/flask-video-streaming-revisited" target="_blank" rel="noopener">https://blog.miguelgrinberg.com/post/flask-video-streaming-revisited</a><br>[2] <a href="https://github.com/miguelgrinberg/flask-video-streaming" target="_blank" rel="noopener">https://github.com/miguelgrinberg/flask-video-streaming</a></p>
+
             </article>
             <hr>
             <div>
@@ -402,6 +410,29 @@ Content-Type: image/jpeg
   
 
   
+    <!-- APlayer 音乐播放器 -->
+    <div id="aplayer"></div>
+    <script defer src="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.js" ></script>
+<link  rel="stylesheet" href="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.css" />
+<script type="text/javascript">
+  var oldLoadAp = window.onload;
+  window.onload = function () {
+    oldLoadAp && oldLoadAp();
+
+    new APlayer({
+      container: document.getElementById('aplayer'),
+      fixed: true,
+      autoplay: 'false' === 'true',
+      loop: 'all',
+      order: 'random',
+      theme: '#b7daff',
+      preload: 'none',
+      audio: [{"name":"name","artist":"artist","url":"/songs/test.mp3","cover":"/img/cover.jpg"},{"name":"name","artist":"artist","url":"https://...url.mp3","cover":"https://...cover.jpg"}]
+    });
+  }
+</script>
+
+  
 
   
 
@@ -414,6 +445,30 @@ Content-Type: image/jpeg
         <span>Fluid</span></a>
     </div>
     
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
 
     
 
@@ -440,6 +495,8 @@ Content-Type: image/jpeg
   <script  src="/blog/js/clipboard-use.js" ></script>
 
 
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
 
 
 
