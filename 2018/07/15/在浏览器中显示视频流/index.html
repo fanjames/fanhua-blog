@@ -159,7 +159,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      936 字
+      999 字
     </span>
   
 
@@ -169,7 +169,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      13
+      14
        分钟
     </span>
   
@@ -213,7 +213,6 @@
 <div class="note note-info">
             <p><strong><a href="https://zh.wikipedia.org/wiki/Motion_JPEG" target="_blank" rel="noopener">维基百科</a></strong>对M-JPEG的介绍：<br>　　M-JPEG只使用帧内压缩（区别于算法更复杂的帧间压缩），只单独的对某一帧进行压缩，而不考虑视频画面中不同帧之间的变化。因此压缩效率比较低，一般低于1:20，而使用了帧间压缩的现代视频压缩格式（如MPEG1、MPEG2和H.264/MPEG-4 AVC）一般能超过1:50。由于各帧直接是相互独立的，M-JPEG的编解码在对运算能力和内存的要求较低。<br>　　由于M-JPEG是纯粹的帧内压缩，每帧画面的质量只与编码率和画面的空域复杂度有关。包含大面积平滑变化或者单色区域的帧压缩效果较好，而包含复杂纹理、细线条（如文字）的区域容易产生由于离散余弦变换产生的噪声。M-JPEG的压缩效果与视频的时域复杂度无关。</p>
           </div>
-<p><iframe src="//www.slideshare.net/slideshow/embed_code/key/bAlwYpbWDpmNKM" width="720" height="480" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC; border-width:1px; margin-bottom:5px; max-width: 100%;" allowfullscreen> </iframe> <div style="margin-bottom:5px"> <strong> <a href="//www.slideshare.net/seldon_io/tensorflow-london-14-ben-hall-machine-learning-workloads-with-kubernetes-and-kubeflow" title="TensorFlow London 14: Ben Hall &#x27;Machine Learning Workloads with Kubernetes and Kubeflow&#x27;" target="_blank">TensorFlow London 14: Ben Hall &#x27;Machine Learning Workloads with Kubernetes and Kubeflow&#x27;</a> </strong> from <strong><a href="https://www.slideshare.net/seldon_io" target="_blank">Seldon</a></strong> </div></p>
 <p>multipart视频流的content type必须是<code>multipart/x-mixed-replace</code>，如下所示，其中<code>--frame</code>作为标识符分隔每一帧图像。<br><pre><code class="hljs html">HTTP/1.1 200 OK
 Content-Type: multipart/x-mixed-replace; boundary=frame
 
@@ -300,6 +299,30 @@ Content-Type: image/jpeg
 
             <span class="hljs-comment"># encode as a jpeg image and return it</span>
             <span class="hljs-keyword">yield</span> cv2.imencode(<span class="hljs-string">'.jpg'</span>, img)[<span class="hljs-number">1</span>].tobytes()</code></pre>
+<pre><code class="hljs python"><span class="hljs-comment"># main.py</span>
+
+<span class="hljs-keyword">from</span> flask <span class="hljs-keyword">import</span> Flask, render_template, Response
+<span class="hljs-keyword">from</span> camera <span class="hljs-keyword">import</span> VideoCamera
+
+app = Flask(__name__)
+
+<span class="hljs-meta">@app.route('/')</span>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">index</span><span class="hljs-params">()</span>:</span>
+    <span class="hljs-keyword">return</span> render_template(<span class="hljs-string">'index.html'</span>)
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">gen</span><span class="hljs-params">(camera)</span>:</span>
+    <span class="hljs-keyword">while</span> <span class="hljs-keyword">True</span>:
+        frame = camera.get_frame()
+        <span class="hljs-keyword">yield</span> (<span class="hljs-string">b'--frame\r\n'</span>
+               <span class="hljs-string">b'Content-Type: image/jpeg\r\n\r\n'</span> + frame + <span class="hljs-string">b'\r\n\r\n'</span>)
+
+<span class="hljs-meta">@app.route('/video_feed')</span>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">video_feed</span><span class="hljs-params">()</span>:</span>
+    <span class="hljs-keyword">return</span> Response(gen(VideoCamera()),
+                    mimetype=<span class="hljs-string">'multipart/x-mixed-replace; boundary=frame'</span>)
+
+<span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">'__main__'</span>:
+    app.run(host=<span class="hljs-string">'0.0.0.0'</span>, debug=<span class="hljs-keyword">True</span>)</code></pre>
 <!-- ### 参考 -->
 <div class="note note-primary">
             <p>参考 </p>
