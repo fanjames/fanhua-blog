@@ -93,8 +93,8 @@ aplayer:  # 音乐播放器，注意不能与 hexo-tag-aplayer 插件共用
   order: 'random'  # 播放顺序，可选值: 'list', 'random'
   theme: '#b7daff'  # 主题色
   songs:  # 歌曲列表，必须传入下列各参数，其中 url 与 cover 在本地需存于 source 目录，更多参数见文档：https://aplayer.js.org/#/zh-Hans/?id=%E5%8F%82%E6%95%B0
-    - { name: '未来へ', artist: 'Kiroro', url: '/songs/Kiroro - 未来へ.mp3', cover: '/songs/Kiroro - 未来へ.jpg' }
-    - { name: 'name', artist: 'artist', url: 'https://...url.mp3', cover: 'https://...cover.jpg' }
+    - { name: '未来へ', artist: 'Kiroro', url: '/songs/未来へ.mp3', cover: '/songs/未来へ.jpeg' }
+    # - { name: 'name', artist: 'artist', url: 'https://...url.mp3', cover: 'https://...cover.jpg' }
 
     
 version:  # 主题版本相关
